@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<style>
+			.wrap {
+				width: 490px;
+				height: 600px;
+				margin: 0 auto;
+				border: 4px solid #000;
+			}
+			.wrap div {
+				width: 97px;
+				height: 99px;
+				float: left;
+				border: 1px solid #fff;
+				margin-left: -1px;
+				margin-top: -1px;
+				background-repeat: no-repeat;
+			}
+			.wrap .mask {
+				display: block;
+				width: 97px;
+				height: 99px;
+				background-color: rgba(255,255,255,.3);
+			}
+		</style>
+	</head>
+	<body>
+		<div class="wrap">
+			<div></div>
+			<div></div>
+			<div></div>
+			<div></div>
+			<div></div>
+			<div></div>
+			<div></div>
+			<div></div>
+			<div></div>
+			<div></div>
+			<div></div>
+			<div></div>
+			<div></div>
+			<div></div>
+			<div></div>
+			<div></div>
+			<div></div>
+			<div></div>
+			<div></div>
+			<div></div>
+			<div></div>
+			<div></div>
+			<div></div>
+			<div></div>
+			<div></div>
+			<div></div>
+			<div></div>
+			<div></div>
+			<div></div>
+			<div></div>
+		</div>
+		<script type="text/javascript">
+			
+			var wrap = document.querySelector(".wrap");
+			
+			var divs = wrap.getElementsByTagName("div");
+			
+			wrap.style.position = "relative";
+			
+			for (var i = 0; i < divs.length; i++) {
+				divs[i].style.backgroundImage = "url(jcw.jpg)";
+				divs[i].style.backgroundPositionX = -(i%5 * 98) + "px";
+				divs[i].style.backgroundPositionY = -(Math.floor( i/5 )* 100) + "px";
+				divs[i].l = divs[i].offsetLeft + "px";
+				divs[i].t = divs[i].offsetTop + "px";
+			}
+			for (var i = 0; i < divs.length; i++) {
+				divs[i].style.position = "absolute";
+				divs[i].style.top = divs[i].t;
+				divs[i].style.left = divs[i].l;
+				
+				
+				divs[i].onmousedown = function(ev){
+					var that = this;
+					that.style.zIndex = "999";
+					var divClient = this.getBoundingClientRect();
+					var disX = ev.clientX - divClient.left;
+					var disY = ev.clientY - divClient.top;
+					
+					document.onmousemove = function(ev){
+						var nowLeft = ev.clientX - wrap.getBoundingClientRect().left - disX;
+						that.style.left = nowLeft + "px";
+						var nowTop = ev.clientY -wrap.getBoundingClientRect().top - disY;
+						that.style.top = nowTop + "px";
+						
+						var xIndex = Math.floor( (nowLeft+49)/98 );
+						if( xIndex == 5 ){
+							xIndex = 4;
+						}
+						if( xIndex<0 || xIndex>5 ){
+							xIndex = -1;
+						}
+						var yIndex = Math.floor( (nowTop+50)/100 );
+						if( yIndex == 6 ){
+							yIndex = 5;
+						}
+						if( yIndex<0 || yIndex>6 ){
+							yIndex = -1;
+						}
+						if( xIndex != -1 && yIndex != -1 ){
+							for (var i = 0; i < divs.length; i++) {
+								divs[i].innerHTML = "";
+							}
+							var index = yIndex*5 + xIndex;
+							divs[index].innerHTML = "<span class='mask'></span>";
+						}
+						
+						console.log(xIndex);
+						
+					}
+					
+					document.onmouseup = function(){
+						document.onmousemove = null;
+						that.style.zIndex = "auto";
+					}
+				}
+			}
+			
+			
+			
+			
+			
+			
+			
+			
+		</script>
+	</body>
+</html>
