@@ -68,14 +68,18 @@
 			
 			wrap.style.position = "relative";
 			
+			var spanIndex = -1;
+			
 			for (var i = 0; i < divs.length; i++) {
 				divs[i].style.backgroundImage = "url(jcw.jpg)";
 				divs[i].style.backgroundPositionX = -(i%5 * 98) + "px";
 				divs[i].style.backgroundPositionY = -(Math.floor( i/5 )* 100) + "px";
 				divs[i].l = divs[i].offsetLeft + "px";
 				divs[i].t = divs[i].offsetTop + "px";
+				divs[i].index = i;
 			}
 			for (var i = 0; i < divs.length; i++) {
+				divs[i].style.float = "none";
 				divs[i].style.position = "absolute";
 				divs[i].style.top = divs[i].t;
 				divs[i].style.left = divs[i].l;
@@ -112,26 +116,69 @@
 							for (var i = 0; i < divs.length; i++) {
 								divs[i].innerHTML = "";
 							}
-							var index = yIndex*5 + xIndex;
-							divs[index].innerHTML = "<span class='mask'></span>";
+							spanIndex = yIndex*5 + xIndex;
+							divs[spanIndex].innerHTML = "<span class='mask'></span>";
+						}else {
+							spanIndex = -1;
+							for (var i = 0; i < divs.length; i++) {
+								divs[i].innerHTML = "";
+							}
 						}
-						
-						console.log(xIndex);
 						
 					}
 					
 					document.onmouseup = function(){
 						document.onmousemove = null;
 						that.style.zIndex = "auto";
+						
+						if( spanIndex != -1 ){
+							//交换拖拽元素和碰撞元素的位置
+							divs[spanIndex].style.top = that.t;
+							divs[spanIndex].style.left = that.l;
+							
+							that.style.top = divs[spanIndex].t;
+							that.style.left = divs[spanIndex].l;
+							//交换拖拽元素和碰撞元素的位置信息
+							var tempT = divs[spanIndex].t;
+							var tempL = divs[spanIndex].l;
+							
+							divs[spanIndex].t = that.t;
+							divs[spanIndex].l = that.l;
+							
+							that.t = tempT;
+							that.l = tempL;
+							//交换拖拽元素和碰撞元素在html结构中的位置
+
+							changeHTMLPos(that,divs[spanIndex]);
+							
+							divs = wrap.getElementsByTagName("div");
+							
+							for (var i = 0; i < divs.length; i++) {
+								divs[i].innerHTML = "";
+							}
+						}else {
+							that.style.top = that.t;
+							that.style.left = that.l;
+						}
+
 					}
 				}
 			}
 			
-			
-			
-			
-			
-			
+			function changeHTMLPos( ele1,ele2 ){ //调换任意两个同级元素的HTML结构位置
+				var parent = ele1.parentNode;
+				var ele1NextSib = ele1.nextElementSibling;
+				var ele2NextSib = ele2.nextElementSibling;
+				
+				if( ele2NextSib == ele1 ){
+					parent.insertBefore( ele1,ele2 );
+				}else if( ele1NextSib == ele2 ){
+					parent.insertBefore( ele2,ele1 );
+				}else{
+					parent.insertBefore(ele1,ele2NextSib);
+					parent.insertBefore(ele2,ele1NextSib);
+				}
+			}
 			
 			
 		</script>
