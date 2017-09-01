@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<style>
+			img {
+				vertical-align: top;
+				border: none;
+			}
+			.whole {
+				width: 1008px;
+				height: 608px;
+				border: 1px solid #000;
+				margin: 0 auto;
+				background: url(img/bg.jpg) no-repeat;
+				background-size: 100%;
+				position: relative;
+			}
+			#wrap {
+				width: 500px;
+				height: 600px;
+				border: 4px solid #00FF99;
+				display: inline-block;
+				margin-left: 10px;
+				position: relative;
+				background-color: #C0C0C0;	
+			}
+			#wrap div {
+				position: absolute;
+				top: 0;
+				left: 0;
+				box-sizing: border-box;
+				border: 1px solid #fff;
+			}
+			.whole img {
+				width: 250px;
+				height: 300px;
+				position: absolute;
+				right: 115px;
+				top: 150px;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="whole">
+			<div id="wrap">
+			</div>
+			<img src="img/jyy2.jpg" id="pic"/>
+		</div>
+		<script>
+			
+			var log = console.log.bind();
+			
+			function Box(){
+				this.picArr = ['img/jcw1.jpg','img/jyy2.jpg','img/gyy.jpg','img/tw.jpg'];
+				this.wrap = document.getElementById("wrap");
+				this.divs = this.wrap.getElementsByTagName("div");
+				this.pic = document.getElementById("pic");
+				this.fathWidth = this.wrap.clientWidth;
+				this.fathHeight = this.wrap.clientHeight;
+				this.m = 1;
+				this.n = 1;
+				this.picNum = -1;
+				this.winFlag = false;
+				
+			}
+			Box.prototype.createPuzzle = function(){
+				var str = "";
+				this.picNum++;
+				this.m++;
+				this.n++;
+				this.winFlag = false;
+				if( this.picNum == this.picArr.length ){
+					this.picNum = 0;
+				}
+				this.pic.src = this.picArr[this.picNum];
+				this.wrap.style.width = "500px";
+				this.wrap.style.height = "600px";
+				//根据父级的宽度，高度除以行数列数计算出子div的宽高并取整
+				var divW = Math.floor(this.wrap.clientWidth/this.m);
+				var divH = Math.floor(this.wrap.clientHeight/this.n);
+				//因为子元素宽高进行了取整,有可能在父级右侧产生间隙，所以用现在子级的宽高度再反过来赋值父级
+				this.wrap.style.width = divW*this.m + "px";
+				this.wrap.style.height = divH*this.n + "px";
+				
+				this.wrap.innerHTML = "";
+				for (var i = 0; i < this.m; i++) {
+					for( var j = 0; j < this.n; j++ ){
+						var div = document.createElement("div");
+						div.style.width = divW + "px";
+						div.style.height = divH + "px";
+						
+						div.style.backgroundImage = "url("+this.picArr[this.picNum]+")";
+						div.style.backgroundPositionX = -j*divW + "px";
+						div.style.backgroundPositionY = -i*divH + "px";
+						
+						div.style.top = i*divH + "px";
+						div.style.left = j*divW + "px";
+						
+						div.t = i*divH + "px";
+						div.l = j*divW + "px";
+						
+						this.wrap.appendChild(div);
+						
+					}
+				}
+				
+				var randomArr = [];
+				for (var i = 0; i < this.divs.length; i++) {
+					randomArr.push(i);
+				}
+				randomArr.sort(function(){
+					return Math.random()-0.5;
+				})
+				for (var i = 0; i < randomArr.length; i++) {
+					this.divs[randomArr[i]].style.left = i%this.m*divW + "px";
+					this.divs[randomArr[i]].style.top = Math.floor(i/this.m)*divH + "px";
+				}
+				
+			}
+			Box.prototype.initAction = function(){
+				var This = this;
+				for (var i = 0; i < this.divs.length; i++) {
+					this.divs[i].onmousedown = function(ev){
+						This.mouseDown( this,ev );
+					}
+				}
+			}
+			Box.prototype.mouseDown = function(div,ev){
+				var This = this;
+				var ev = ev || event;
+				
+				var disX = ev.clientX - div.getBoundingClientRect().left;
+				var disY = ev.clientY - div.getBoundingClientRect().top;
+				
+				var nowLeft =  div.offsetLeft;
+				var nowTop = div.offsetTop;
+				
+				var divWidth = div.offsetWidth;
+				var divHeight = div.offsetHeight;
+				
+				var maxLeft = this.wrap.clientWidth - div.offsetWidth;
+				var maxTop = this.wrap.clientHeight - div.offsetHeight;
+				
+				var divOriLeft = div.offsetLeft;
+				var divOriTop = div.offsetTop;
+				
+				document.onmousemove = function(e){
+					div.style.zIndex = "999";
+					nowLeft =  e.clientX - disX - This.wrap.getBoundingClientRect().left;
+					nowTop = e.clientY - disY - This.wrap.getBoundingClientRect().top;
+					if( nowLeft < 0 ){
+						nowLeft = 0;
+					}
+					if( nowLeft > maxLeft ){
+						nowLeft = maxLeft;
+					}
+					if( nowTop < 0 ){
+						nowTop = 0;
+					}
+					if( nowTop > maxTop ){
+						nowTop = maxTop;
+					}
+					div.style.left = nowLeft + "px";
+					div.style.top = nowTop + "px";
+				}
+				document.onmouseup = function(){
+					div.style.zIndex = "auto";
+					document.onmousemove = null;
+					
+					var diffValueL = nowLeft%divWidth;
+					if( diffValueL < divWidth/2 ){
+						div.style.left = nowLeft - diffValueL + "px";
+					}else {
+						div.style.left = nowLeft + (divWidth - diffValueL) + "px";
+					}
+					var diffValueT = nowTop%divHeight;
+					if( diffValueT < divHeight/2 ){
+						div.style.top = nowTop - diffValueT +　"px";
+					}else {
+						div.style.top = nowTop + (divHeight - diffValueT) + "px";
+					}
+					nowLeft = div.offsetLeft;
+					nowTop = div.offsetTop;
+					
+					for (var i = 0; i < This.divs.length; i++) {
+						if( This.divs[i] == div ) continue;
+						if( This.divs[i].offsetLeft == nowLeft && This.divs[i].offsetTop == nowTop ){
+							This.divs[i].style.left = divOriLeft + "px";
+							This.divs[i].style.top = divOriTop + "px";
+							This.checkWin();
+							if( This.winFlag ){
+								setTimeout(function(){
+									alert("victory!");
+									This.createPuzzle();
+									This.initAction();
+								},50)
+							}
+						}
+					}
+					document.onmouseup = null;
+				}
+				return false;
+			}
+			Box.prototype.checkWin = function(){
+				for (var i = 0; i < this.divs.length-1; i++) {
+					if( this.divs[i].offsetLeft+this.divs[i].offsetTop*1000 > this.divs[i+1].offsetLeft+this.divs[i+1].offsetTop*1000 ){
+						this.winFlag = false;
+						return;
+					}
+				}
+				this.winFlag = true;
+			}
+			
+			
+			
+			function __main(){
+				
+				var box = new Box();
+				box.createPuzzle();
+				box.initAction();
+				
+			}
+			__main();
+			
+		</script>
+		
+		
+		
+	</body>
+</html>

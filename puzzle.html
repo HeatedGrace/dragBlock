@@ -60,7 +60,7 @@
 			<div></div>
 			<div></div>
 		</div>
-		<script type="text/javascript">
+		<script>
 			
 			var wrap = document.querySelector(".wrap");
 			
@@ -71,12 +71,11 @@
 			var spanIndex = -1;
 			
 			for (var i = 0; i < divs.length; i++) {
-				divs[i].style.backgroundImage = "url(jcw.jpg)";
+				divs[i].style.backgroundImage = "url(img/jcw.jpg)";
 				divs[i].style.backgroundPositionX = -(i%5 * 98) + "px";
 				divs[i].style.backgroundPositionY = -(Math.floor( i/5 )* 100) + "px";
 				divs[i].l = divs[i].offsetLeft + "px";
 				divs[i].t = divs[i].offsetTop + "px";
-				divs[i].index = i;
 			}
 			for (var i = 0; i < divs.length; i++) {
 				divs[i].style.float = "none";
